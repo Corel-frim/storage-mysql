@@ -62,7 +62,11 @@ func (s *MySQL) SetupConnectionsPool(maxOpenConns, maxIdleConns int, maxLifetime
 	}
 }
 
-func (s *MySQL) Disonnect() error {
+func (s *MySQL) GetRawDB() *sql.DB {
+	return s.db
+}
+
+func (s *MySQL) Disconnect() error {
 	return s.db.Close()
 }
 

@@ -1,4 +1,4 @@
-module github.com/go-qbit/storage-mysql
+module github.com/corel-frim/storage-mysql
 
 go 1.17
 
