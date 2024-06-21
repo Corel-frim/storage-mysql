@@ -55,6 +55,21 @@ func (s *MySQL) StartTransaction(ctx context.Context) (context.Context, error) {
 	}
 }
 
+func (s *MySQL) UseTransaction(ctx context.Context, tx *sql.Tx) (context.Context, error) {
+	if tx == nil {
+		return nil, qerror.Errorf("No transaction provided")
+	}
+
+	t := ctx.Value(s.transactionKey())
+	if t != nil {
+		return nil, qerror.Errorf("Transaction already started")
+	}
+
+	return context.WithValue(ctx, s.transactionKey(), &transaction{
+		tx: tx,
+	}), nil
+}
+
 func (s *MySQL) Commit(ctx context.Context) (context.Context, error) {
 	ct := ctx.Value(s.transactionKey())
 
@@ -148,6 +163,16 @@ func (s *MySQL) DoInTransaction(ctx context.Context, f func(ctx context.Context)
 	}
 
 	return nil
+}
+
+func (s *MySQL) GetTransaction(ctx context.Context) *sql.Tx {
+	t := ctx.Value(s.transactionKey())
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(*transaction).tx
 }
 
 func (s *MySQL) transactionKey() string {
